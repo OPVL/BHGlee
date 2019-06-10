@@ -43,6 +43,8 @@ function getRefreshToken($auth, $client, $secret)
 
     $response = curl_exec($ch);
 
+    return $response;
+
     if (curl_errno($ch)) {
         return 'Error:' . curl_error($ch);
     }

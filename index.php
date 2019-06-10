@@ -1,6 +1,6 @@
 <?php
-require "service/config.php";
 require "service/functions.php";
+require "service/config.php";
 
 $REFRESH_TOKEN = null;
 $AUTH_CODE = null;
@@ -11,13 +11,12 @@ if (isset($_GET['refresh'])) {
     if (isset($_GET['auth_code'])) {
         $AUTH_CODE = $_GET['auth_code'];
     } else {
-        // Login and get Auth Code so we can get refresh token and stpo the requirement to login with each request.
-        $AUTH_CODE = getAuthToken([$client_id, $username, $password]);
-        // $AUTH_CODE;
+        // Login and get Auth Code so we can get refresh token and stop the requirement to login with each request.
+        $AUTH_CODE = getAuthToken($CLIENT_ID, $USERNAME, $PASSWORD);
     }
-    $REFRESH_TOKEN = getRefreshToken();
+    $REFRESH_TOKEN = getRefreshToken($AUTH_CODE, $CLIENT_ID, $CLIENT_SECRET);
 }
 
-echo getAuthCode();
+echo "Auth Token: $AUTH_CODE<br>Refresh: $REFRESH_TOKEN";
 
 // https://rest.bullhornstaffing.com/rest-services/login?version=2.0&access_token={xxxxxxxx}
