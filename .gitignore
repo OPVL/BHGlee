@@ -1,3 +1,7 @@
 /node_modules/
 /service/config.php
 resources/temp2\.json
+
+resources/service/config\.ini
+
+resources/service/config\.php
