@@ -1,5 +1,6 @@
 <?php
 define('OAUTH_URL', 'https://auth.bullhornstaffing.com/oauth');
+
 function getAuthToken($client, $user, $pass)
 {
     $ch = curl_init();
@@ -16,11 +17,6 @@ function getAuthToken($client, $user, $pass)
         return 'Error:' . curl_error($ch);
     }
 
-    // Then, after your curl_exec call:
-    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-    $header = substr($response, 0, $header_size);
-    $body = substr($response, $header_size);
-
     curl_close($ch);
 
     if (preg_match("|Location: (https?://\S+)|", $response, $m)) {
@@ -31,7 +27,7 @@ function getAuthToken($client, $user, $pass)
     }
 }
 
-function getRefreshToken($auth, $client, $secret)
+function getAccessToken($auth, $client, $secret)
 {
     $ch = curl_init();
 
@@ -39,27 +35,33 @@ function getRefreshToken($auth, $client, $secret)
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 0);
-    curl_setopt($ch, CURLOPT_HEADER, true);
+    // curl_setopt($ch, CURLOPT_HEADER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
 
     $response = curl_exec($ch);
 
-    return $response;
+    curl_close($ch);
+
+    return json_decode($response);
+}
+
+function getRestToken($access, $version = '*')
+{
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, "https://rest.bullhornstaffing.com/rest-services/login?version=$version&access_token=$access");
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 0);
+    curl_setopt($ch, CURLOPT_POST, true);
+
+    $response = curl_exec($ch);
 
     if (curl_errno($ch)) {
         return 'Error:' . curl_error($ch);
     }
 
-    // Then, after your curl_exec call:
-    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-    $header = substr($response, 0, $header_size);
-    $body = substr($response, $header_size);
-
     curl_close($ch);
 
-    if (preg_match("|Location: (https?://\S+)|", $response, $m)) {
-        //Location is in $m[1]
-        if (preg_match("|code=(\S+)\&client_id|", $m[1], $n)) {
-            return urldecode($n[1]);
-        }
-    }
+    return json_decode($response);
 }
