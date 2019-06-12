@@ -1,5 +1,7 @@
 <?php
-define('OAUTH_URL', 'https://auth.bullhornstaffing.com/oauth');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 class DatabaseMisc
 {
@@ -17,7 +19,7 @@ class DatabaseMisc
             'password' => $config['DB_PASS']
         ];
     }
-    public static function jsonError(String $msg)
+    public static function jsonError(string $msg)
     {
         $json = [
             'error' => $msg,
@@ -36,7 +38,6 @@ class DatabaseMisc
         return $conn;
     }
 }
-
 class Log
 {
     public static $table = 'event_log';
@@ -112,12 +113,8 @@ class Log
         return Log::save($msg, 'INFO');
     }
 }
-abstract class Code
-{
-    public abstract static function get();
-}
 
-class AuthCode extends Code
+class AuthCode
 {
     static $params = [
         CURLOPT_FOLLOWLOCATION => 0,
@@ -132,7 +129,9 @@ class AuthCode extends Code
             $client = $config['CLIENT_ID'];
             $username = $config['USERNAME'];
             $password = $config['PASSWORD'];
-            return OAUTH_URL . "/authorize?client_id=$client&response_type=code&username=$username&password=$password&action=Login";
+            $url = $config['OAUTH_URL'];
+
+            return "$url/authorize?client_id=$client&response_type=code&username=$username&password=$password&action=Login";
         } catch (Exception $e) {
             echo $e;
             return null;
@@ -142,7 +141,7 @@ class AuthCode extends Code
     /**
      * Returns the Auth Code which is then used to get the access code
      * 
-     * @return string Auth CodeS
+     * @return string Auth Code
      */
     public static function get()
     {
@@ -173,7 +172,6 @@ class AuthCode extends Code
         }
     }
 }
-
 class AccessToken
 {
     public static $refreshParams = [
@@ -205,8 +203,9 @@ class AccessToken
         $config = parse_ini_file('config.ini');
         $client = $config['CLIENT_ID'];
         $secret = $config['CLIENT_SECRET'];
+        $url = $config['OAUTH_URL'];
 
-        $ch = curl_init(OAUTH_URL . "/token?grant_type=$type=$code&client_id=$client&client_secret=$secret");
+        $ch = curl_init("$url/token?grant_type=$type=$code&client_id=$client&client_secret=$secret");
         curl_setopt_array($ch, AccessToken::$params);
         $response = curl_exec($ch);
 
@@ -227,7 +226,6 @@ class AccessToken
         return $response;
     }
 }
-
 class RestToken
 {
     public static $params = [
