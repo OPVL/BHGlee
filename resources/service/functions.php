@@ -39,30 +39,33 @@ class DatabaseMisc
 
 class Log
 {
-    private $table = 'event_log';
+    public static $table = 'event_log';
 
     /**
      * Logs events in to the database, has overload methods for default success, fail, info
-     * @param json $msg   save data
-     * 
+     * @param string $msg   save data
+     * @param int|enum $type INFO | SUCCESS | FAIL | FATAL
      * @return bool save ? TRUE : FALSE
      */
-    public static function save($msg)
+    public static function save($msg, $type = 'CUSTOM')
     {
         $conn = DatabaseMisc::connect();
 
-        $columns['message'] = "'" . $conn->escape_string($msg) . "'";
+        $columns['message'] = "'$msg'";
+        $columns['category'] = "'$type'";
         $columns['time'] = time();
         $columns['ip'] = "'" . $_SERVER['REMOTE_ADDR'] . "'";
 
-        $values = implode(',', array_values($this->columns));
-        $columns = implode(',', array_keys($this->_columns));
+        $values = implode(',', array_values($columns));
+        $columns = implode(',', array_keys($columns));
 
-        $sql = "INSERT INTO $this->table ( $columns ) VALUES ( $values )";
+        $sql = "INSERT INTO " . Log::$table . " ( $columns ) VALUES ( $values )";
 
         if (!$conn->query($sql)) {
             die($conn->error);
         }
+
+        return TRUE;
     }
 
     /**
@@ -73,8 +76,7 @@ class Log
      */
     public static function success($msg)
     {
-        $msg = json_encode(['message' => $msg, 'status' => 'success']);
-        return Log::save($msg);
+        return Log::save($msg, 'SUCCESS');
     }
 
     /**
@@ -85,7 +87,6 @@ class Log
      */
     public static function fail($msg)
     {
-        $msg = json_encode(['message' => $msg, 'status' => 'fail']);
         return Log::save($msg, 'FAIL');
     }
 
@@ -97,7 +98,6 @@ class Log
      */
     public static function fatal($msg)
     {
-        $msg = json_encode(['message' => $msg, 'status' => 'fatal']);
         return Log::save($msg, 'FATAL');
     }
 
@@ -109,7 +109,6 @@ class Log
      */
     public static function info($msg)
     {
-        $msg = json_encode(['message' => $msg, 'status' => 'info']);
         return Log::save($msg, 'INFO');
     }
 }
@@ -123,7 +122,7 @@ class Token
 
     protected $id = 0;
     private $_token;
-    private $_created_at;
+    private $_created_at = 0;
     private $_expired = FALSE;
     protected $_exists = FALSE;
 
@@ -133,21 +132,24 @@ class Token
         $this->expiry = $expiry;
         $this->_conn = DatabaseMisc::connect();
 
-        print_r("parent construct<br>");
+        print_r("Token: parent construct<br>");
         if ($this->setToken($token)) {
             $this->_exists = FALSE;
             return;
         }
 
+        print_r("Token: newest check<br>");
         $this->id = $id ?? $this->newest();
-        print_r("newest check<br>");
 
         if ($this->id == NULL) {
-            print_r("no ID<br>");
+            print_r("Token: no ID<br>");
             return;
         }
-        $this->_exists = TRUE;
-        $this->$_expired = $this->get();
+
+        print_r('Token: ID is not null<br>');
+        // $this->_exists = TRUE;
+        $this->init();
+        print_r('construct finished');
     }
 
     public function isValid()
@@ -155,14 +157,19 @@ class Token
         print_r('isvalid check<br>');
         $this->_expired = (time() - $this->_created_at < $this->_expiry);
 
+        print_r("isValid: ".$this->_created_at);
+
+        die(time());
 
         if ($this->_expired) {
             $sql = "UPDATE " . $this->table . " expired=1 WHERE id=" . $this->id;
             if ($this->_conn->query($sql) === FALSE) {
                 Log::fatal($this->_conn->error);
             }
+            die('token expired');
             return FALSE;
         }
+        log::info('token valid');
         return TRUE;
     }
 
@@ -177,13 +184,14 @@ class Token
             $this->_token = $token;
             return TRUE;
         }
-        print_r("token is NULL<br>");
+        print_r("setToken: token is NULL<br>");
 
         return FALSE;
     }
 
-    public function get()
+    public function init()
     {
+        print_r('Token: init()');
         $sql = "SELECT * FROM " . $this->table . " WHERE id=" . $this->id . " ORDER BY created_at DESC LIMIT 1";
         $res = $this->_conn->query($sql);
 
@@ -199,6 +207,9 @@ class Token
         $this->_created_at = $row['created_at'];
         $this->_token = $row['token'];
         $this->_expired = $row['expired'];
+        $this->_exists = true;
+        
+        print_r('<br>init returning<br>');
 
         return $this->_token;
     }
@@ -210,10 +221,13 @@ class Token
      */
     public function newest()
     {
-        $sql = "SELECT id FROM " . $this->table . " ORDER BY id DESC LIMIT 1";
+        // die('getting newest');
+        $sql = "SELECT * FROM " . $this->table . " ORDER BY id DESC LIMIT 1";
         $res = $this->_conn->query($sql);
         if ($res !== FALSE) {
             $row = $res->fetch_assoc();
+            print_r("newest: ".implode(',',$row)."<br>");
+            print_r("newest: ".$row['id']."<br>");
             return (int)$row['id'];
         }
         return null;
@@ -257,41 +271,32 @@ class AuthCode
         CURLOPT_MAXREDIRS => 0,
         CURLOPT_HEADER => 1
     ];
-    private $_url;
-    protected $code;
 
-    public function __construct()
-    {
-        try {
-            $config = parse_ini_file('config.ini');
-            $this->_url = $this->buildUrl($config);
-        } catch (Exception $e) {
-            echo $e;
-        }
-    }
-
-    private function buildUrl(array $config)
+    public static function buildUrl(array $config)
     {
         try {
             $client = $config['CLIENT_ID'];
             $username = $config['USERNAME'];
             $password = $config['PASSWORD'];
-            return OAUTH_URL . $this->url = "/authorize?client_id=$client&response_type=code&username=$username&password=$password&action=Login";
+            return OAUTH_URL . "/authorize?client_id=$client&response_type=code&username=$username&password=$password&action=Login";
         } catch (Exception $e) {
             echo $e;
             return null;
         }
     }
 
-    public function get()
+    public static function get()
     {
+        $url = AuthCode::buildUrl(parse_ini_file('config.ini'));
+        // die($url);
         try {
-            $ch = curl_init($this->_url);
+            $ch = curl_init($url);
             curl_setopt_array($ch, AuthCode::$params);
             $response = curl_exec($ch);
 
             if (curl_errno($ch)) {
-                return 'Error:' . curl_error($ch);
+                Log::fatal(curl_error($ch));
+                die('rats... '.curl_error($ch));
             }
 
             curl_close($ch);
@@ -303,7 +308,7 @@ class AuthCode
                     return $code;
                 }
             }
-            return null;
+            return FALSE;
         } catch (Exception $e) {
             echo $e;
         }
@@ -323,14 +328,14 @@ class AccessToken extends Token
 {
     private $_refresh;
 
-    private $params = [
+    public static $refreshParams = [
         CURLOPT_FOLLOWLOCATION => 0,
         CURLOPT_RETURNTRANSFER => 1,
         CURLOPT_MAXREDIRS => 0,
         CURLOPT_HEADER => 1
     ];
 
-    private $newParams = [
+    public static $params = [
         CURLOPT_FOLLOWLOCATION => 0,
         CURLOPT_RETURNTRANSFER => 1,
         CURLOPT_MAXREDIRS => 0,
@@ -358,6 +363,7 @@ class AccessToken extends Token
 
     public function refresh()
     {
+        die('refreshing token');
         if (!$this->_expired)
             return $this->_token;
 
@@ -381,8 +387,23 @@ class AccessToken extends Token
         return 'New Access Token, Refresh gets saved to DB';
     }
 
-    private function getNew()
+    public static function get(){
+        $auth = AuthCode::get();
+        $config = parse_ini_file('config.ini');
+        $client = $config['CLIENT_ID'];
+        $secret = $config['CLIENT_SECRET'];
+
+        $ch = curl_init(OAUTH_URL . "/token?grant_type=authorization_code&code=$auth&client_id=$client&client_secret=$secret");
+        curl_setopt_array($ch, AccessToken::$params);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
+    public function getNew()
     {
+        print_r('accestoken: getNew');
         $auth = new AuthCode();
         $auth = $auth->get();
 
@@ -401,27 +422,29 @@ class AccessToken extends Token
         $this->_refresh = $refresh->save();
         $this->setToken($response->access_token);
         $this->save(['refresh_token' => $this->_refresh]);
+
+        return $this->_token;
     }
 
-    public function get()
+    public function getOld()
     {
         print_r('child get<br>');
         if ($this->_exists) {
+            print_r('token exists');
             if (!$this->isValid()) {
                 Log::info('token invalid, refreshing');
                 return $this->refresh();
             }
 
-            parent::get();
             return $this->_token;
         }
         $this->getNew();
     }
 }
 
-$tets = new AccessToken();
-
-$tets->get();
+// $tets = new AccessToken();
+// $tets->getNew();
+// print_r($tets->getNew());
 //print_r($tets->get() ? 'EGG' : 'FALSE');
 
 function getAuthCode($client, $user, $pass)
@@ -497,3 +520,6 @@ function getRestToken($access, $version = '*')
 
     return json_decode($response);
 }
+
+
+print_r(AuthCode::get());
