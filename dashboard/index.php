@@ -1,3 +1,8 @@
+<?php
+if (!isset($_COOKIE['refresh_token'])){
+    header('Location: /gleesons/login?origin=dashboard');
+}
+?>
 <!doctype html>
 <html lang="en">
 

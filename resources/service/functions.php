@@ -222,7 +222,8 @@ class AccessToken
 
         $response = json_decode($response, true);
 
-        Log::info("AccessCode C r eated: " . $response['access_token']);
+        die(implode(' - ', $response));
+        Log::info("AccessCode Created: " . $response['access_token']);
 
         if ($justToken)
             return $response['access_token'];

@@ -1,6 +1,6 @@
 <?php
 
-if (!isset($_COOKIE['BhRestToken'])){
+if (!isset($_COOKIE['refresh_token'])){
     header('Location: /gleesons/login?origin=go&term='.$_GET['term']);
 }
 

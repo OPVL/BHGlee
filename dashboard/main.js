@@ -5,7 +5,6 @@
 const fields = 'dealValue,dateAdded,actualCloseDate,reasonClosed';
 const sort = 'dateAdded';
 const query = 'status:"Closed-Won" AND actualCloseDate:[20190101000000 TO 20190429225959] AND owner.id:(87030) AND NOT status:Archive';
-let token = false;
 let restUrl = 'https://rest23.bullhornstaffing.com/rest-services/3rn5us/';
 
 const fields2 = [
@@ -14,24 +13,30 @@ const fields2 = [
 
 function init(args = null) {
 
+    let token = getCookie('BhRestToken');
+    console.log(token);
     if (!token) {
         //BhRestToken is valid for 10 minutes
         console.log('getting token');
         token = getCookie('token');
         if (token) {
             console.log(`token is ${token}`);
-            getInfo();
+            getInfo(token);
             return;
         }
         getToken(new Date());
+        return;
     }
-
     cookieConsent();
+    getInfo(token);
 }
 
 const getToken = async (time) => {
 
-    const response = await fetch('http://localhost/TestDump/Gleetest/resources/');
+    let refresh = getCookie('refresh_token') || null;
+    refresh = `?refresh=${refresh}`;
+
+    const response = await fetch(`http://localhost/TestDump/Gleetest/resources/${refresh}`);
     json = await response.json();
     token = json.BhRestToken;
     restUrl = json.restUrl;
@@ -39,22 +44,33 @@ const getToken = async (time) => {
     time.setMinutes(time.getMinutes() + 10);
     time = time.toUTCString();
 
-    document.cookie = `token=${json.BhRestToken}; expires=${time}`;
+    document.cookie = `BhRestToken=${json.BhRestToken}; expires=${time};`;
+    document.cookie = `restUrl=${json.restUrl}; max-age=${60*60*24*30};`;
+    document.cookie = `refresh_token=${json.refresh_token}; max-age=${60*60*24*30};`;
 
     console.log(json);
 
     getInfo();
 }
 
-const getInfo = async() => {
+const getUser = async (token)=>{
+    const response = await fetch(`${restUrl}settings/userId?BhRestToken=${token}`);
+    json = response.json();
+    return json;
+}
+
+const getInfo = async (token) => {
+
+    let user = getUser(token);
+
     let quarter = getQuarter('cur');
     updateDisplayDates(quarter);
-    const query2 = `(status:"Invoice Raised" OR status:"Approved") AND owners.id:87030 AND (employmentType:"Permanent" OR employmentType:"FTC (perm)")  AND NOT status:Archive AND dateAdded:[${dateToBh(quarter[0])} TO ${dateToBh(quarter[1])}]`;
+    const query2 = `(status:"Invoice Raised" OR status:"Approved") AND owners.id:${user.userId} AND (employmentType:"Permanent" OR employmentType:"FTC (perm)")  AND NOT status:Archive AND dateAdded:[${dateToBh(quarter[0])} TO ${dateToBh(quarter[1])}]`;
 
     let quotaCurrent;
     let quotaData;
 
-    fetch(`${restUrl}query/SalesQuota?fields=*&where=id IS NOT NULL AND owner.id=87030 AND period='Q4 2019'&orderBy=-percentAttained&count=500&BhRestToken=${token}`)
+    fetch(`${restUrl}query/SalesQuota?fields=*&where=id IS NOT NULL AND owner.id=${user} AND period='Q4 2019'&orderBy=-percentAttained&count=500&BhRestToken=${token}`)
         .then(function (response) {
             return response.json();
         })
@@ -102,7 +118,7 @@ function move(max, id) {
 }
 
 function testFunction() {
-    
+
 }
 
 function dateToBh(timestamp, endTime = '000000') {
