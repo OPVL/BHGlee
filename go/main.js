@@ -331,7 +331,10 @@ function handleResponse(term) {
 
     const getToken = async (time) => {
 
-        const response = await fetch('http://localhost/TestDump/Gleetest/resources/service/');
+        let refresh = getCookie('refresh_token') || null;
+        refresh = `?refresh=${refresh}`;
+        
+        const response = await fetch(`http://localhost/TestDump/Gleetest/resources/${refresh}`);
         json = await response.json();
         token = json.BhRestToken;
         restUrl = json.restUrl;
@@ -339,13 +342,18 @@ function handleResponse(term) {
         time.setMinutes(time.getMinutes() + 10);
         time = time.toUTCString();
 
-        document.cookie = `token=${json.BhRestToken}; expires=${time}`;
+        document.cookie = `BhRestToken=${json.BhRestToken}; expires=${time};`;
+        document.cookie = `restUrl=${json.restUrl}; max-age=${60*60*24*30};`;
+        document.cookie = `refresh_token=${json.refresh_token}; max-age=${60*60*24*30};`;
 
         console.log(json);
 
         getInfo();
     }
 
+    token = getCookie('BhRestToken');
+
+    console.log(token);
     if (!token) {
         //BhRestToken is valid for 10 minutes
         console.log('getting token');
@@ -356,7 +364,9 @@ function handleResponse(term) {
             return;
         }
         getToken(new Date());
+        return;
     }
+    getInfo();
 }
 
 /**

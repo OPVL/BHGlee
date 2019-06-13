@@ -16,12 +16,12 @@ class AuthCode
         CURLOPT_HEADER => 1
     ];
 
-    public static function buildUrl(array $config)
+    public static function buildUrl(array $config, array $credentials)
     {
         try {
             $client = $config['CLIENT_ID'];
-            $username = $config['USERNAME'];
-            $password = $config['PASSWORD'];
+            $username = $credentials[0] ?? $config['USERNAME'];
+            $password = $credentials[1] ?? $config['PASSWORD'];
             $url = $config['OAUTH_URL'];
 
             return "$url/authorize?client_id=$client&response_type=code&username=$username&password=$password&action=Login";
@@ -36,9 +36,9 @@ class AuthCode
      * 
      * @return string Auth Code
      */
-    public static function get()
+    public static function get(array $credentials = null)
     {
-        $url = AuthCode::buildUrl(parse_ini_file('config.ini'));
+        $url = AuthCode::buildUrl(parse_ini_file('config.ini'), $credentials);
         try {
             $ch = curl_init($url);
             curl_setopt_array($ch, AuthCode::$params);

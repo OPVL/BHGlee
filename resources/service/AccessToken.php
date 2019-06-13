@@ -47,12 +47,12 @@ class AccessToken
 
         curl_close($ch);
 
-        $response = json_decode($response);
+        $response = json_decode($response, true);
 
-        Log::info("AccessCode Created: $response->access_token");
+        Log::info("AccessCode Created: ".$response['access_token']);
 
         if ($justToken)
-            return $response->access_token;
+            return $response['access_token'];
 
         return $response;
     }

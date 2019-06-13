@@ -1,11 +1,12 @@
 //https://rest23.bullhornstaffing.com/rest-services/3rn5us/search/Placement?fields=id,status,dateAdded,jobSubmission,candidate(id,firstName,lastName,source,isAnonymized),jobOrder(id,title,clientCorporation(id,name),clientContact(id,firstName,lastName,email)),salary,payRate,clientBillRate,dateBegin,dateEnd,employmentType,fee&sort=-dateAdded&start=0&count=10&showTotalMatched=true&showEditable=true&query=candidate.id:84628 AND dateAdded:[20190422230000 TO 20190430230000]
 //https://rest23.bullhornstaffing.com/rest-services/3rn5us/search/Placement?fields=id,status,dateAdded,jobSubmission,candidate(id,firstName,lastName,source,isAnonymized),jobOrder(id,title,clientCorporation(id,name),clientContact(id,firstName,lastName,email)),salary,payRate,clientBillRate,dateBegin,dateEnd,employmentType,fee&sort=-dateAdded&start=0&count=25&showTotalMatched=true&showEditable=true&query=candidate.id:84628 AND dateAdded:[20190130000000 TO 20190430230000]
-const restUrl = 'https://cls23.bullhornstaffing.com/core';
-const restUrl2 = 'https://rest23.bullhornstaffing.com/rest-services/3rn5us';
+// const restUrl = 'https://cls23.bullhornstaffing.com/core';
+// const restUrl2 = 'https://rest23.bullhornstaffing.com/rest-services/3rn5us';
 const fields = 'dealValue,dateAdded,actualCloseDate,reasonClosed';
 const sort = 'dateAdded';
 const query = 'status:"Closed-Won" AND actualCloseDate:[20190101000000 TO 20190429225959] AND owner.id:(87030) AND NOT status:Archive';
-const BhRestToken = '5fc4b5a4-be0e-4fe6-a7bc-b539630ba7b7';
+let token = false;
+let restUrl = 'https://rest23.bullhornstaffing.com/rest-services/3rn5us/';
 
 const fields2 = [
     'id', 'dateAdded', 'status', 'employmentType', 'salary', 'dateBegin', 'flatFee', 'owner'
@@ -13,8 +14,39 @@ const fields2 = [
 
 function init(args = null) {
 
-    testFunction();
+    if (!token) {
+        //BhRestToken is valid for 10 minutes
+        console.log('getting token');
+        token = getCookie('token');
+        if (token) {
+            console.log(`token is ${token}`);
+            getInfo();
+            return;
+        }
+        getToken(new Date());
+    }
 
+    cookieConsent();
+}
+
+const getToken = async (time) => {
+
+    const response = await fetch('http://localhost/TestDump/Gleetest/resources/');
+    json = await response.json();
+    token = json.BhRestToken;
+    restUrl = json.restUrl;
+
+    time.setMinutes(time.getMinutes() + 10);
+    time = time.toUTCString();
+
+    document.cookie = `token=${json.BhRestToken}; expires=${time}`;
+
+    console.log(json);
+
+    getInfo();
+}
+
+const getInfo = async() => {
     let quarter = getQuarter('cur');
     updateDisplayDates(quarter);
     const query2 = `(status:"Invoice Raised" OR status:"Approved") AND owners.id:87030 AND (employmentType:"Permanent" OR employmentType:"FTC (perm)")  AND NOT status:Archive AND dateAdded:[${dateToBh(quarter[0])} TO ${dateToBh(quarter[1])}]`;
@@ -22,7 +54,7 @@ function init(args = null) {
     let quotaCurrent;
     let quotaData;
 
-    fetch(`${restUrl}/query/SalesQuota?fields=*&where=id IS NOT NULL AND owner.id=87030 AND period='Q4 2019'&orderBy=-percentAttained&count=500&BhRestToken=${BhRestToken}`)
+    fetch(`${restUrl}query/SalesQuota?fields=*&where=id IS NOT NULL AND owner.id=87030 AND period='Q4 2019'&orderBy=-percentAttained&count=500&BhRestToken=${token}`)
         .then(function (response) {
             return response.json();
         })
@@ -32,7 +64,7 @@ function init(args = null) {
             document.getElementById('quotaQuarter').innerHTML = `Quarterly Target: £${quotaData.data[0].quota / 4}`;
 
         })
-        .then(fetch(`${restUrl}/search/Placement?fields=${fields2.toString()}&sort=-dateAdded&start=0&count=25&query=${query2}&BhRestToken=${BhRestToken}`)
+        .then(fetch(`${restUrl}search/Placement?fields=${fields2.toString()}&sort=-dateAdded&start=0&count=25&query=${query2}&BhRestToken=${token}`)
             .then(function (response) {
                 return response.json();
             })
@@ -70,7 +102,7 @@ function move(max, id) {
 }
 
 function testFunction() {
-    cookieConsent();
+    
 }
 
 function dateToBh(timestamp, endTime = '000000') {

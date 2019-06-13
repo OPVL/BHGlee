@@ -1,4 +1,5 @@
 <?php
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -123,12 +124,12 @@ class AuthCode
         CURLOPT_HEADER => 1
     ];
 
-    public static function buildUrl(array $config)
+    public static function buildUrl(array $config, array $credentials = null)
     {
         try {
             $client = $config['CLIENT_ID'];
-            $username = $config['USERNAME'];
-            $password = $config['PASSWORD'];
+            $username = $credentials[0] ?? $config['USERNAME'];
+            $password = $credentials[1] ?? $config['PASSWORD'];
             $url = $config['OAUTH_URL'];
 
             return "$url/authorize?client_id=$client&response_type=code&username=$username&password=$password&action=Login";
@@ -143,9 +144,9 @@ class AuthCode
      * 
      * @return string Auth Code
      */
-    public static function get()
+    public static function get(array $credentials = null)
     {
-        $url = AuthCode::buildUrl(parse_ini_file('config.ini'));
+        $url = AuthCode::buildUrl(parse_ini_file('config.ini'), $credentials);
         try {
             $ch = curl_init($url);
             curl_setopt_array($ch, AuthCode::$params);
@@ -166,7 +167,7 @@ class AuthCode
                     return $code;
                 }
             }
-            return FALSE;
+            return null;
         } catch (Exception $e) {
             Log::fatal($e);
         }
@@ -192,13 +193,16 @@ class AccessToken
      * Returns an Access Token & Refresh Token
      * 
      * @param bool $justToken if TRUE then only the access_token is returned
+     * @param string|null $authCode if supplied then will get an access_token and refresh_token from specified authCode
      * @param string|null $refresh if supplied then it will refresh instead of calling a new auth code#
      * 
      * @return object|string will return object containing refresh token and access token unless told to just return token
      */
-    public static function get(bool $justToken, string $refresh = null)
+    public static function get(bool $justToken, string $authCode = null, string $refresh = null)
     {
-        $code = $refresh ?? AuthCode::get();
+        $code = $refresh ?? $authCode ?? AuthCode::get();
+        if (!$code)
+            return null;
         $type = $refresh == null ? 'authorization_code&code' : 'refresh_token&refresh_token';
         $config = parse_ini_file('config.ini');
         $client = $config['CLIENT_ID'];
@@ -216,12 +220,12 @@ class AccessToken
 
         curl_close($ch);
 
-        $response = json_decode($response);
+        $response = json_decode($response, true);
 
-        Log::info("AccessToken Created: $response->access_token");
+        Log::info("AccessCode C r eated: " . $response['access_token']);
 
         if ($justToken)
-            return $response->access_token;
+            return $response['access_token'];
 
         return $response;
     }
@@ -243,10 +247,16 @@ class RestToken
      * 
      * @return array associative array containing the RestToken and RestUrl
      */
-    public static function get(bool $justToken, $token = null, $version = '*')
+    public static function get(bool $justToken, array $credentials = null)
     {
-        $access = $token ?? AccessToken::get(true);
-        $url = "https://rest.bullhornstaffing.com/rest-services/login?version=$version&access_token=$access";
+        $auth = AuthCode::get($credentials);
+        $access = AccessToken::get(false, $auth, null);
+
+        if (!$auth || !$access) {
+            return [];
+        }
+        // return NULL;
+        $url = "https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token=" . $access['access_token'];
         $ch = curl_init($url);
         curl_setopt_array($ch, RestToken::$params);
         $response = curl_exec($ch);
@@ -259,11 +269,68 @@ class RestToken
         curl_close($ch);
         $response = json_decode($response, true);
 
-        Log::info("RestToken Created: ".$response['BhRestToken']);
+        Log::info("RestToken Created: " . $response['BhRestToken']);
 
         if ($justToken)
-            return json_encode("{ 'token':'".$response['BhRestToken']."' }");
+            return json_encode("{ 'token':'" . $response['BhRestToken'] . "' }");
 
-        return json_encode($response);
+        $response = array_merge($response, $access);
+
+        return $response;
+    }
+
+    public static function refresh(bool $justToken, string $refresh)
+    {
+        $access = AccessToken::get($justToken, null, $refresh);
+
+        if (!$access) {
+            return [];
+        }
+        // return NULL;
+        $url = "https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token=" . $access['access_token'];
+        $ch = curl_init($url);
+        curl_setopt_array($ch, RestToken::$params);
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            Log::fatal(curl_error($ch));
+            die('rats... ' . curl_error($ch));
+        }
+
+        curl_close($ch);
+        $response = json_decode($response, true);
+
+        Log::info("RestToken Created: " . $response['BhRestToken']);
+
+        if ($justToken)
+            return json_encode("{ 'token':'" . $response['BhRestToken'] . "' }");
+
+        $response = array_merge($response, $access);
+
+        return $response;
     }
 }
+
+// print_r(RestToken::get(false, ['training.gle','Disco2019!']));
+
+// print_r(RestToken::get(false));
+
+// Array ( 
+//     [access_token] => 23:7a437f92-b134-433c-8ab5-d5ac40940189 
+//     [token_type] => Bearer 
+//     [expires_in] => 600 
+//     [refresh_token] => 23:1a8517d4-a6a0-4a8f-94b2-3ce4a69b56b4 
+//     ) 
+// Array ( 
+//     [BhRestToken] => a7529ba2-9228-42cf-b6e8-3943a9691838 
+//     [restUrl] => https://rest23.bullhornstaffing.com/rest-services/3rn5us/ 
+//     ) 
+    
+//     {
+//         "BhRestToken":"a7529ba2-9228-42cf-b6e8-3943a9691838",
+//         "restUrl":"https:\/\/rest23.bullhornstaffing.com\/rest-services\/3rn5us\/",
+//         "access_token":"23:7a437f92-b134-433c-8ab5-d5ac40940189",
+//         "token_type":"Bearer",
+//         "expires_in":600,
+//         "refresh_token":"23:1a8517d4-a6a0-4a8f-94b2-3ce4a69b56b4"
+//     }

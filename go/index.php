@@ -1,4 +1,9 @@
 <?php
+
+if (!isset($_COOKIE['BhRestToken'])){
+    header('Location: /gleesons/login?origin=go&term='.$_GET['term']);
+}
+
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
 }
@@ -26,7 +31,7 @@ if (isset($_GET['term'])) {
 
 <body onload="handleResponse('<?=$searchTerm?>')">
     <nav class="navbar navbar-expand-sm navbar-light text-dark" style="background: #c9dfee">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/gleesons/">
             <img src="../resources/img/logo-white.png" width="300" height="57" alt="">
         </a>
         <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
@@ -34,7 +39,7 @@ if (isset($_GET['term'])) {
         <div class="collapse navbar-collapse" id="collapsibleNavId">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Dashboard</a>
+                    <a class="nav-link" href="/gleesons/dashboard">Dashboard</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="#">GoIntegrator <span class="sr-only">(current)</span></a>
