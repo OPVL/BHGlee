@@ -1,5 +1,5 @@
 <?php
 
-namespace App\Service;
+require "functions.php";
 
-echo $_GET['type'] ?? 'grapes';
+$request = $_GET['type'] ?? die(RestToken::get($_GET['justToken'] ?? false));

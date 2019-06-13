@@ -218,7 +218,7 @@ class AccessToken
 
         $response = json_decode($response);
 
-        Log::info("AccessCode Created: $response->access_token");
+        Log::info("AccessToken Created: $response->access_token");
 
         if ($justToken)
             return $response->access_token;
@@ -259,15 +259,11 @@ class RestToken
         curl_close($ch);
         $response = json_decode($response, true);
 
-        Log::info("AccessCode Created: ".$response['BhRestToken']);
+        Log::info("RestToken Created: ".$response['BhRestToken']);
 
         if ($justToken)
-            return $response['BhRestToken'];
+            return json_encode("{ 'token':'".$response['BhRestToken']."' }");
 
-        return $response;
+        return json_encode($response);
     }
 }
-
-print_r("AuthCode: ".AuthCode::get());
-print_r("<br>AccessToken: ".AccessToken::get(true));
-print_r("<br>RestToken: ".RestToken::get(true));

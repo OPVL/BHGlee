@@ -1,5 +1,8 @@
 let eg = `/OpenWindow.cfm?entity=Candidate&id=12345&view=Activity&expandedSection=Interviews`;
-const token = '5fc4b5a4-be0e-4fe6-a7bc-b539630ba7b7';
+// const token = '5fc4b5a4-be0e-4fe6-a7bc-b539630ba7b7';
+
+let token = false;
+let restUrl = 'https://rest23.bullhornstaffing.com/rest-services/3rn5us/';
 /**
  * Entity	            Call
  * Candidate:	        /OpenWindow.cfm?entity=Candidate&view=AddNote           <<---/                                             \
@@ -11,54 +14,54 @@ const token = '5fc4b5a4-be0e-4fe6-a7bc-b539630ba7b7';
  * Lead:	            /OpenWindow.cfm?entity=Lead&view=AddNote 
  */
 {
-// let target = `/OpenWindow.cfm?entity=${entityType}&id=${entityId}&view=Activity&expandedSection=Interviews`;
-// const sampleReturn = {
-//     "data": [{
-//             "entityId": 27966,
-//             "entityType": "ClientContact",
-//             "title": "TestContact Testcontact ETZ",
-//             "byLine": "TEST CLIENT LTD",
-//             "location": "Tester City"
-//         }, {
-//             "entityId": 84603,
-//             "entityType": "ClientContact",
-//             "title": "Left - Rubeus Hagrid ",
-//             "byLine": "NR TESTER ",
-//             "location": "Tester City"
-//         }, {
-//             "entityId": 87679,
-//             "entityType": "ClientContact",
-//             "title": "Stephen Brandsma-Test",
-//             "byLine": "TEST CLIENT LTD",
-//             "location": "Tester City"
-//         }, {
-//             "entityId": 8158,
-//             "entityType": "JobOrder",
-//             "title": "Wizard FTC",
-//             "byLine": "Hogwarts School",
-//             "location": ""
-//         }, {
-//             "entityId": 8160,
-//             "entityType": "JobOrder",
-//             "title": "Wizard FTC V2",
-//             "byLine": "Hogwarts School",
-//             "location": ""
-//         }, {
-//             "entityId": 64688,
-//             "entityType": "Candidate",
-//             "title": "John DoeETZ",
-//             "byLine": "TEST CONTACT",
-//             "location": ""
-//         },
-//         {
-//             "entityId": 2,
-//             "entityType": "ClientCorporation",
-//             "title": "TEST CLIENT LTD",
-//             "byLine": "Active",
-//             "location": "Tester City"
-//         }
-//     ]
-// };
+    // let target = `/OpenWindow.cfm?entity=${entityType}&id=${entityId}&view=Activity&expandedSection=Interviews`;
+    // const sampleReturn = {
+    //     "data": [{
+    //             "entityId": 27966,
+    //             "entityType": "ClientContact",
+    //             "title": "TestContact Testcontact ETZ",
+    //             "byLine": "TEST CLIENT LTD",
+    //             "location": "Tester City"
+    //         }, {
+    //             "entityId": 84603,
+    //             "entityType": "ClientContact",
+    //             "title": "Left - Rubeus Hagrid ",
+    //             "byLine": "NR TESTER ",
+    //             "location": "Tester City"
+    //         }, {
+    //             "entityId": 87679,
+    //             "entityType": "ClientContact",
+    //             "title": "Stephen Brandsma-Test",
+    //             "byLine": "TEST CLIENT LTD",
+    //             "location": "Tester City"
+    //         }, {
+    //             "entityId": 8158,
+    //             "entityType": "JobOrder",
+    //             "title": "Wizard FTC",
+    //             "byLine": "Hogwarts School",
+    //             "location": ""
+    //         }, {
+    //             "entityId": 8160,
+    //             "entityType": "JobOrder",
+    //             "title": "Wizard FTC V2",
+    //             "byLine": "Hogwarts School",
+    //             "location": ""
+    //         }, {
+    //             "entityId": 64688,
+    //             "entityType": "Candidate",
+    //             "title": "John DoeETZ",
+    //             "byLine": "TEST CONTACT",
+    //             "location": ""
+    //         },
+    //         {
+    //             "entityId": 2,
+    //             "entityType": "ClientCorporation",
+    //             "title": "TEST CLIENT LTD",
+    //             "byLine": "Active",
+    //             "location": "Tester City"
+    //         }
+    //     ]
+    // };
 }
 
 const dropDownOptions = [
@@ -219,7 +222,7 @@ function createList(parent, collection, count) {
 function createListEntry(parent, entity) {
     // create accordian wrapper div
     let wrapper = createElem(parent, 'list-group-item');
-    
+
 
     let line = createElem(wrapper, 'card-text flex-row', 'a');
     line.style = 'min-width: 450px; display: flex!important; justify-content: space-between;';
@@ -240,8 +243,24 @@ function createListEntry(parent, entity) {
     // create collapsible div wrapper
     let collapse = createElem(wrapper, 'collapse');
     collapse.setAttribute('id', `collapse${entity.entityId}`);
-    createElem(collapse,'my-2', 'hr');
+    createElem(collapse, 'my-2', 'hr');
     createNotesForm(collapse, entity.entityId);
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 }
 
 function handleResponse(term) {
@@ -285,28 +304,59 @@ function handleResponse(term) {
 
     console.log(term);
 
-    fetch(`https://rest23.bullhornstaffing.com/rest-services/3rn5us/find?query=${term}&BhRestToken=${token}`)
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (json) {
+    const getInfo = async () => {
+        fetch(`${restUrl}find?query=${term}&BhRestToken=${token}`)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (json) {
 
-            console.log(json);
+                console.log(json);
 
-            for (const entity of json.data) {
-                // see if entityType already exists in array
-                for (const group of sorted) {
-                    if (group.name == entity.entityType) {
-                        group.entities.push(entity);
-                        count++;
-                        break;
+                for (const entity of json.data) {
+                    // see if entityType already exists in array
+                    for (const group of sorted) {
+                        if (group.name == entity.entityType) {
+                            group.entities.push(entity);
+                            count++;
+                            break;
+                        }
                     }
                 }
-            }
 
-            let page = document.getElementById('mainPage');
-            createList(page, sorted, count);
-        });
+                let page = document.getElementById('mainPage');
+                createList(page, sorted, count);
+            });
+    }
+
+    const getToken = async (time) => {
+
+        const response = await fetch('http://localhost/TestDump/Gleetest/resources/service/');
+        json = await response.json();
+        token = json.BhRestToken;
+        restUrl = json.restUrl;
+
+        time.setMinutes(time.getMinutes() + 10);
+        time = time.toUTCString();
+
+        document.cookie = `token=${json.BhRestToken}; expires=${time}`;
+
+        console.log(json);
+
+        getInfo();
+    }
+
+    if (!token) {
+        //BhRestToken is valid for 10 minutes
+        console.log('getting token');
+        token = getCookie('token');
+        if (token) {
+            console.log(`token is ${token}`);
+            getInfo();
+            return;
+        }
+        getToken(new Date());
+    }
 }
 
 /**
