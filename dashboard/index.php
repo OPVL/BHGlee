@@ -109,15 +109,6 @@ if (!isset($_COOKIE['refresh_token'])){
         </div>
         <br>
     </div>
-    <div id="cookie-container">
-        <div class="flex horizontal">
-            <div class="cookie-text">
-                By using our website you are consenting to our use of cookies in accordance with our <a
-                    href="/cookies">cookie policy</a>.
-            </div>
-            <a name="cookie-consent" id="cookie" class="btn btn-primary" href="javavscript::void(0)" role="button" onclick="closeCookie()">Close</a>
-        </div>
-    </div>
     <script src="main.js"></script>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

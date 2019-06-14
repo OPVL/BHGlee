@@ -46,9 +46,16 @@ const getToken = async (time) => {
 }
 
 const getUser = async (token)=>{
-    const response = await fetch(`${restUrl}settings/userId?BhRestToken=${token}`);
-    json = await response.json();
-    return json.userId;
+    let user = getCookie('userId');
+
+    if (!user){
+        const response = await fetch(`${restUrl}settings/userId?BhRestToken=${token}`);
+        json = await response.json();
+        user = json.userId;
+    }
+
+    document.cookie = `userId=${user}; max-age=${60*60*24*30}; path=/`;
+    return user;
 }
 
 const getInfo = async (token) => {
@@ -57,7 +64,7 @@ const getInfo = async (token) => {
 
     let quarter = getQuarter('cur');
     updateDisplayDates(quarter);
-    const query2 = `(status:"Invoice Raised" OR status:"Approved") AND owners.id:${user.userId} AND (employmentType:"Permanent" OR employmentType:"FTC (perm)")  AND NOT status:Archive AND dateAdded:[${dateToBh(quarter[0])} TO ${dateToBh(quarter[1])}]`;
+    const query2 = `(status:"Invoice Raised" OR status:"Approved") AND owners.id:${user} AND (employmentType:"Permanent" OR employmentType:"FTC (perm)")  AND NOT status:Archive AND dateAdded:[${dateToBh(quarter[0])} TO ${dateToBh(quarter[1])}]`;
 
     let quotaCurrent;
     let quotaData;

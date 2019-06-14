@@ -1,5 +1,5 @@
 <?php
-
+    header("Location: dashboard")
 ?>
 
 <!DOCTYPE html>

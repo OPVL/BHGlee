@@ -197,20 +197,25 @@ function createListEntry(parent, entity) {
     createNotesForm(collapse, entity.entityId);
 }
 
-function getCookie(cname) {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
+// function getCookie(cname) {
+//     var name = cname + "=";
+//     var decodedCookie = decodeURIComponent(document.cookie);
+//     var ca = decodedCookie.split(';');
+//     for (var i = 0; i < ca.length; i++) {
+//         var c = ca[i];
+//         while (c.charAt(0) == ' ') {
+//             c = c.substring(1);
+//         }
+//         if (c.indexOf(name) == 0) {
+//             return c.substring(name.length, c.length);
+//         }
+//     }
+//     return "";
+// }
+
+function noResults(page){
+    let card = createElem(page, 'card');
+    createElem(card, 'card-header').innerText = `No Results`;
 }
 
 function handleResponse(term) {
@@ -263,50 +268,53 @@ function handleResponse(term) {
 
                 console.log(json);
 
-                for (const entity of json.data) {
-                    // see if entityType already exists in array
-                    for (const group of sorted) {
-                        if (group.name == entity.entityType) {
-                            group.entities.push(entity);
-                            count++;
-                            break;
+                if (!json.errorMessage){
+                    for (const entity of json.data) {
+                        // see if entityType already exists in array
+                        for (const group of sorted) {
+                            if (group.name == entity.entityType) {
+                                group.entities.push(entity);
+                                count++;
+                                break;
+                            }
                         }
                     }
+                    createList(document.getElementById('mainPage'), sorted, count);
+                    return;
                 }
 
-                let page = document.getElementById('mainPage');
-                createList(page, sorted, count);
+                noResults(document.getElementById('mainPage'));
+                return;
             });
     }
 
-    const getToken = async (time) => {
+    // const getToken = async (time, next) => {
 
-        let refresh = getCookie('refresh_token') || null;
-        refresh = `?refresh=${refresh}`;
+    //     let refresh = getCookie('refresh_token') || null;
+    //     refresh = `?refresh=${refresh}`;
         
-        const response = await fetch(`http://localhost/TestDump/Gleetest/resources/${refresh}`);
-        json = await response.json();
-        token = json.BhRestToken;
-        restUrl = json.restUrl;
+    //     const response = await fetch(`http://localhost/TestDump/Gleetest/resources/${refresh}`);
+    //     json = await response.json();
+    //     token = json.BhRestToken;
+    //     restUrl = json.restUrl;
 
-        time.setMinutes(time.getMinutes() + 10);
-        time = time.toUTCString();
+    //     time.setMinutes(time.getMinutes() + 10);
+    //     time = time.toUTCString();
 
-        document.cookie = `BhRestToken=${json.BhRestToken}; expires=${time}; path=/`;
-        document.cookie = `restUrl=${json.restUrl}; max-age=${60*60*24*30}; path=/`;
-        document.cookie = `refresh_token=${json.refresh_token}; max-age=${60*60*24*30}; path=/`;
+    //     document.cookie = `BhRestToken=${json.BhRestToken}; expires=${time}; path=/`;
+    //     document.cookie = `restUrl=${json.restUrl}; max-age=${60*60*24*30}; path=/`;
+    //     document.cookie = `refresh_token=${json.refresh_token}; max-age=${60*60*24*30}; path=/`;
 
-        console.log(json);
+    //     console.log(json);
 
-        getInfo();
-    }
+    //     getInfo();
+    // }
 
     token = getCookie('BhRestToken');
     if (!token) {
         //BhRestToken is valid for 10 minutes
         console.log('getting token');
-        getToken(new Date());
-        return;
+        token = getToken(new Date());
     }
     getInfo();
 }

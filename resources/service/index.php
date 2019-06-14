@@ -2,4 +2,4 @@
 
 require "functions.php";
 
-header("Location: /");
+header("Location: gleesons/dashboard");

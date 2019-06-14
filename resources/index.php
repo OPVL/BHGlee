@@ -15,7 +15,7 @@ if (isset($_POST['username']) && isset($_POST['password'])){
     setcookie("refresh_token", $tokens['refresh_token'],time()+60*60*24*30, '/');
     setcookie("restUrl", $tokens['restUrl'],time()+60*60*24*30, '/');
 
-    header("Location: /gleesons/".$_POST['origin']??'dashboard');
+    header("Location: /gleesons/".($_POST['origin'].$_POST['term'])??'dashboard');
 }
 
 if (isset($_GET['refresh'])){

@@ -1,33 +1,32 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-if (!isset($_COOKIE['refresh_token'])) {
-    header('Location: /gleesons/login?origin=go&term=' . $_GET['term']);
-}
+if (!isset($_COOKIE['refresh_token']))
+    header("Location: /gleesons/login");
+require "../resources/service/functions.php";
 
-if (isset($_GET['action'])) {
-    $action = $_GET['action'];
-}
-
-if (isset($_GET['term'])) {
-    $searchTerm = $_GET['term'];
-}
-
+$conn = DatabaseMisc::connect();
+$limit = 100;
 ?>
+
 <!doctype html>
 <html lang="en">
 
 <head>
-    <title>GoIntegrator</title>
+    <title>Gleesons Sales Dashboard</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 
-<body onload="handleResponse('<?= $searchTerm ?>')">
+<body onload="">
     <nav class="navbar navbar-expand-sm navbar-light text-dark" style="background: #c9dfee">
         <a class="navbar-brand" href="/gleesons/">
             <img src="../resources/img/logo-white.png" width="300" height="57" alt="">
@@ -36,31 +35,61 @@ if (isset($_GET['term'])) {
         <div class="collapse navbar-collapse" id="collapsibleNavId">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/gleesons/dashboard">Dashboard</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">GoIntegrator <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/gleesons/dashboard">Dashboard<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" href="/gleesons/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
-
+                    <a class="nav-link" href="/gleesons/go/">GoIntegrator</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Admin<span class="sr-only">(current)</span></a>
                 </li>
                 <!-- <div class="nav-item">
                     <a class="nav-link" href="javascript:void(0)" onclick="handleResponse('<?= $searchTerm ?>')">Trigger
                         response</a>
                 </div> -->
             </ul>
-            <form class="form-inline my-2 my-lg-0" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="GET">
-                <input required class="form-control mr-md-10" type="text" placeholder="Search" name="term">
-            </form>
         </div>
     </nav>
-    <div id="mainPage" style="margin-bottom: 60px;">
+    <div class="container-fluid">
+        <?php
+        $sql = "SELECT * FROM event_log ORDER BY id DESC LIMIT $limit";
+        $res = $conn->query($sql);
+
+        if (!$res) {
+            die("Query Failed: $conn->error");
+        }
+
+        echo '<table class="table table-hover"><thead class="thead-light"><tr><th scope="col">#</th><th scope="col">Message</th><th scope="col">Category</th><th scope="col">Time</th><th scope="col">Date</th><th scope="col">IP</th></tr></thead><tbody>';
+
+        while ($row = $res->fetch_assoc()) {
+            $colour = '#eee';
+            
+            switch ($row['category']) {
+                case 'value':
+                    # code...
+                    break;
+                
+                default:
+                    # code...
+                    break;
+            }
+            echo("<tr>");
+            echo("<th scope='row'>".$row['id']."</th>");
+            echo("<td>".$row['message']."</td>");
+            echo("<td>".$row['category']."</td>");
+            echo("<td class='bg-warn'>".date('H:i:s',$row['time'])."</td>");
+            echo("<td>".date('d/m/y',$row['time'])."</td>");
+            echo("<td>".$row['ip']."</td>");
+            echo("</tr>");
+        }
+
+        echo("</tbody></table>");
+        ?>
     </div>
-    <div class="card-footer text-muted text-center bottom bg-light" style="position:fixed; bottom: 0; width: 100%; height: 60px; z-index: 100;">
-        Not what you wanted? Try <a data-toggle="collapse" href="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false">Searching Again</a>.
+    <div class="card-footer text-muted text-center bottom bg-light" style="position:fixed; bottom: 0; width: 100%; height: 40px; z-index: 100;">
         <div class="credit">
-            <p style="color: #ccc; font-size: 10px;">powered by <a href="https://evaporate.tech"> Evaporate</a><a href="https://evaporate.tech">
+            <p style="color: #ccc; font-size: 10px;">powered by <a href="https://evaporate.tech">
+                    Evaporate</a><a href="https://evaporate.tech">
                     <svg width="25px" height="15px" viewBox="0 0 50 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
                         <title>Cloud Light</title>
@@ -76,16 +105,6 @@ if (isset($_GET['term'])) {
             </p>
         </div>
     </div>
-    <script src="../resources/util.js"></script>
-    <script src="main.js"></script>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
-    </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
-    </script>
 </body>
 
 </html>

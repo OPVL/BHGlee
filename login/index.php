@@ -23,23 +23,6 @@
     <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-    <!-- <nav class="navbar navbar-expand-sm navbar-light text-dark" style="">
-        <a class="navbar-brand" href="/gleesons">
-            <img src="../resources/img/logo-white.png" width="300" height="57" alt="">
-        </a>
-        <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
-            aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
-        <div class="collapse navbar-collapse" id="collapsibleNavId">
-            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="/gleesons/dashboard/">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/gleesons/go/">GoIntegrator</a>
-                </li>
-            </ul>
-        </div>
-    </nav> -->
     <div class="container">
         <div class="d-flex justify-content-center h-100">
             <div class="card">
@@ -51,6 +34,14 @@
                         <?= isset($_GET['error']) ? "<div class='alert alert-danger' role='alert'>
                             <strong style='font-size: 12px'>Error: Please double check your credentials and try again.</strong>
                             </div>" : null ?>
+                        <div class="form-group">
+                            <label class="sr-only" for="origin">origin</label>
+                            <input type="text" class="form-control" name="origin" id="origin" placeholder="origin" value="<?= $_GET['origin'] ?? 'dashboard' ?>" hidden>
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only" for="term">term</label>
+                            <input type="text" class="form-control" name="term" id="term" placeholder="term" value="?term=<?=$_GET['term']?>" hidden>
+                        </div>
                         <div class="input-group form-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -63,10 +54,6 @@
                                 <span class="input-group-text"><i class="fas fa-key"></i></span>
                             </div>
                             <input id="password" name="password" type="password" class="form-control" placeholder="password" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="sr-only" for="origin">origin</label>
-                            <input type="text" class="form-control" name="origin" id="origin" placeholder="origin" value="<?= $_GET['origin'] ?? 'dashboard' ?>" hidden
                         </div>
                         <div class="form-group">
                             <input type="submit" value="Login" class="btn btn-block login_btn">
