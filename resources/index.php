@@ -22,12 +22,17 @@ if (isset($_GET['refresh'])){
     $tokens = RestToken::refresh(false, $_GET['refresh'] ?? $_COOKIE['refresh_token']);
 
     if (!$tokens['BhRestToken']){
+        setcookie("BhRestToken", "", 0, '/');
+        setcookie("refresh_token", "",0, '/');
+        die('invalid');
         return json_encode(tokens);
     }
 
     setcookie("BhRestToken", $tokens['BhRestToken'], time() + $tokens['expires_in'], '/');
     setcookie("refresh_token", $tokens['refresh_token'],time()+60*60*24*30, '/');
     setcookie("restUrl", $tokens['restUrl'],time()+60*60*24*30, '/');
+
+    die(json_encode($tokens));
 }
 
 // $request = $_GET['type'] ?? die(RestToken::get($_GET['justToken'] ?? false));

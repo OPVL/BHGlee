@@ -13,21 +13,13 @@ const fields2 = [
 
 function init(args = null) {
 
-    let token = getCookie('BhRestToken');
-    console.log(token);
+    token = getCookie('BhRestToken');
     if (!token) {
         //BhRestToken is valid for 10 minutes
         console.log('getting token');
-        token = getCookie('token');
-        if (token) {
-            console.log(`token is ${token}`);
-            getInfo(token);
-            return;
-        }
         getToken(new Date());
         return;
     }
-    cookieConsent();
     getInfo(token);
 }
 
@@ -35,7 +27,7 @@ const getToken = async (time) => {
 
     let refresh = getCookie('refresh_token') || null;
     refresh = `?refresh=${refresh}`;
-
+    
     const response = await fetch(`http://localhost/TestDump/Gleetest/resources/${refresh}`);
     json = await response.json();
     token = json.BhRestToken;
@@ -44,9 +36,9 @@ const getToken = async (time) => {
     time.setMinutes(time.getMinutes() + 10);
     time = time.toUTCString();
 
-    document.cookie = `BhRestToken=${json.BhRestToken}; expires=${time};`;
-    document.cookie = `restUrl=${json.restUrl}; max-age=${60*60*24*30};`;
-    document.cookie = `refresh_token=${json.refresh_token}; max-age=${60*60*24*30};`;
+    document.cookie = `BhRestToken=${json.BhRestToken}; expires=${time}; path=/`;
+    document.cookie = `restUrl=${json.restUrl}; max-age=${60*60*24*30}; path=/`;
+    document.cookie = `refresh_token=${json.refresh_token}; max-age=${60*60*24*30}; path=/`;
 
     console.log(json);
 
@@ -55,13 +47,13 @@ const getToken = async (time) => {
 
 const getUser = async (token)=>{
     const response = await fetch(`${restUrl}settings/userId?BhRestToken=${token}`);
-    json = response.json();
-    return json;
+    json = await response.json();
+    return json.userId;
 }
 
 const getInfo = async (token) => {
 
-    let user = getUser(token);
+    let user = await getUser(token);
 
     let quarter = getQuarter('cur');
     updateDisplayDates(quarter);

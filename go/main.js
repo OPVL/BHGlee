@@ -13,56 +13,6 @@ let restUrl = 'https://rest23.bullhornstaffing.com/rest-services/3rn5us/';
  * Opportunity:	        /OpenWindow.cfm?entity=Opportunity&view=AddNote
  * Lead:	            /OpenWindow.cfm?entity=Lead&view=AddNote 
  */
-{
-    // let target = `/OpenWindow.cfm?entity=${entityType}&id=${entityId}&view=Activity&expandedSection=Interviews`;
-    // const sampleReturn = {
-    //     "data": [{
-    //             "entityId": 27966,
-    //             "entityType": "ClientContact",
-    //             "title": "TestContact Testcontact ETZ",
-    //             "byLine": "TEST CLIENT LTD",
-    //             "location": "Tester City"
-    //         }, {
-    //             "entityId": 84603,
-    //             "entityType": "ClientContact",
-    //             "title": "Left - Rubeus Hagrid ",
-    //             "byLine": "NR TESTER ",
-    //             "location": "Tester City"
-    //         }, {
-    //             "entityId": 87679,
-    //             "entityType": "ClientContact",
-    //             "title": "Stephen Brandsma-Test",
-    //             "byLine": "TEST CLIENT LTD",
-    //             "location": "Tester City"
-    //         }, {
-    //             "entityId": 8158,
-    //             "entityType": "JobOrder",
-    //             "title": "Wizard FTC",
-    //             "byLine": "Hogwarts School",
-    //             "location": ""
-    //         }, {
-    //             "entityId": 8160,
-    //             "entityType": "JobOrder",
-    //             "title": "Wizard FTC V2",
-    //             "byLine": "Hogwarts School",
-    //             "location": ""
-    //         }, {
-    //             "entityId": 64688,
-    //             "entityType": "Candidate",
-    //             "title": "John DoeETZ",
-    //             "byLine": "TEST CONTACT",
-    //             "location": ""
-    //         },
-    //         {
-    //             "entityId": 2,
-    //             "entityType": "ClientCorporation",
-    //             "title": "TEST CLIENT LTD",
-    //             "byLine": "Active",
-    //             "location": "Tester City"
-    //         }
-    //     ]
-    // };
-}
 
 const dropDownOptions = [
     "Active Job Call",
@@ -342,9 +292,9 @@ function handleResponse(term) {
         time.setMinutes(time.getMinutes() + 10);
         time = time.toUTCString();
 
-        document.cookie = `BhRestToken=${json.BhRestToken}; expires=${time};`;
-        document.cookie = `restUrl=${json.restUrl}; max-age=${60*60*24*30};`;
-        document.cookie = `refresh_token=${json.refresh_token}; max-age=${60*60*24*30};`;
+        document.cookie = `BhRestToken=${json.BhRestToken}; expires=${time}; path=/`;
+        document.cookie = `restUrl=${json.restUrl}; max-age=${60*60*24*30}; path=/`;
+        document.cookie = `refresh_token=${json.refresh_token}; max-age=${60*60*24*30}; path=/`;
 
         console.log(json);
 
@@ -352,17 +302,9 @@ function handleResponse(term) {
     }
 
     token = getCookie('BhRestToken');
-
-    console.log(token);
     if (!token) {
         //BhRestToken is valid for 10 minutes
         console.log('getting token');
-        token = getCookie('token');
-        if (token) {
-            console.log(`token is ${token}`);
-            getInfo();
-            return;
-        }
         getToken(new Date());
         return;
     }
