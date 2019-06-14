@@ -7,7 +7,7 @@ if (isset($_POST['username']) && isset($_POST['password'])){
     // $tokens = RestToken::get(false);
     
     if (!$tokens['BhRestToken']){
-        header("Location: /gleesons/login?error=1");
+        header("Location: /gleesons/login?status=danger&message=1");
         return;
     }
 

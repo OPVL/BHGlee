@@ -26,4 +26,4 @@ setcookie("refresh_token", "", 0, '/');
 setcookie("restUrl", "", 0, '/');
 setcookie("userId", "", 0, '/');
 
-header("Location: /gleesons/login");
+header("Location: /gleesons/login?status=success&message=2");

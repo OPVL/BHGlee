@@ -5,7 +5,20 @@
 <!--[if gt IE 8]><!-->
 <html class="no-js">
 <!--<![endif]-->
+<?php
+$message = null;
+$status = $_GET['status'];
 
+$messages = [
+    "Error",
+    "Double check your credentials & try again.",
+    "Logged out Successfully."
+];
+
+if (isset($status)){
+    $message = $messages[$_GET['message'] ?? 0];
+}
+?>
 <head>
     <title>GoIntegrator</title>
     <!-- Required meta tags -->
@@ -26,14 +39,12 @@
     <div class="container">
         <div class="d-flex justify-content-center h-100">
             <div class="card">
-                <div class="card-header">
-                    <h3>Sign in to Bullhorn</h3>
+                <div class="card-header text-light">
+                    <h3 class="text-center">Sign in to Bullhorn</h3>
                 </div>
                 <div class="card-body">
                     <form action='/gleesons/resources/index.php' method='POST'>
-                        <?= isset($_GET['error']) ? "<div class='alert alert-danger' role='alert'>
-                            <strong style='font-size: 12px'>Error: Please double check your credentials and try again.</strong>
-                            </div>" : null ?>
+                        <?= isset($status) ? "<div class='text-center alert alert-$status' role='alert'><strong style='font-size: 13px'>$message</strong></div>" : null ?>
                         <div class="form-group">
                             <label class="sr-only" for="origin">origin</label>
                             <input type="text" class="form-control" name="origin" id="origin" placeholder="origin" value="<?= $_GET['origin'] ?? 'dashboard' ?>" hidden>
@@ -61,8 +72,8 @@
                     </form>
                 </div>
                 <div class="card-footer">
-                    <div class="d-flex justify-content-center">
-                        <a href="#">Forgot your password?</a>
+                    <div class="text-center">
+                        <a class="text-light" href="mailto:support@gleecall.com">Forgot your password?</a>
                     </div>
                 </div>
             </div>

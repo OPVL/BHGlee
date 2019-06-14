@@ -42,8 +42,7 @@ if (isset($_GET['term'])) {
                     <a class="nav-link" href="#">GoIntegrator <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" href="/gleesons/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
-
+                    <a title="Logout" class="nav-link" href="/gleesons/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
                 </li>
                 <!-- <div class="nav-item">
                     <a class="nav-link" href="javascript:void(0)" onclick="handleResponse('<?= $searchTerm ?>')">Trigger

@@ -17,10 +17,6 @@ body {
     --glee-secondary: #1e1e1e;
 }
 
-nav{
-    background: #c9dfee;
-}
-
 .container {
     height: 100%;
     align-content: center;
@@ -32,27 +28,6 @@ nav{
     margin-bottom: auto;
     width: 400px;
     background-color: rgba(0, 0, 0, 0.5) !important;
-}
-
-.social_icon span {
-    font-size: 60px;
-    margin-left: 10px;
-    color: var(--glee-blue);
-}
-
-.social_icon span:hover {
-    color: var(--glee-primary);
-    cursor: pointer;
-}
-
-.card-header h3 {
-    color: var(--glee-primary);
-}
-
-.social_icon {
-    position: absolute;
-    right: 20px;
-    top: -45px;
 }
 
 .input-group-prepend span {
@@ -68,26 +43,16 @@ input:focus {
 
 }
 
-.remember {
-    color: var(--glee-primary);
-}
-
-.remember input {
-    width: 20px;
-    height: 20px;
-    margin-left: 15px;
-    margin-right: 5px;
-}
-
 .login_btn {
     color: black;
-    background-color: var(--glee-blue);
+    background-color: var(--glee-primary);
     width: 100px;
+    transition: background-color 0.2s ease-in-out;
 }
 
 .login_btn:hover {
     color: black;
-    background-color: var(--glee-primary);
+    background-color: var(--glee-blue);
 }
 
 .links {
