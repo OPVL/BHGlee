@@ -213,6 +213,7 @@ class AccessToken
         curl_setopt_array($ch, AccessToken::$params);
         $response = curl_exec($ch);
 
+        // die($response);
         if (curl_errno($ch)) {
             Log::fatal(curl_error($ch));
             die('rats... ' . curl_error($ch));

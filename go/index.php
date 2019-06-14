@@ -1,7 +1,7 @@
 <?php
 
 if (!isset($_COOKIE['refresh_token'])) {
-    header('Location: /gleesons/login?origin=go&term=' . $_GET['term']);
+    header('Location: /login?origin=go&term=' . $_GET['term']);
 }
 
 if (isset($_GET['action'])) {
@@ -29,20 +29,20 @@ if (isset($_GET['term'])) {
 
 <body onload="handleResponse('<?= $searchTerm ?>')">
     <nav class="navbar navbar-expand-sm navbar-light text-dark" style="background: #c9dfee">
-        <a class="navbar-brand" href="/gleesons/">
+        <a class="navbar-brand" href="/">
             <img src="../resources/img/logo-white.png" width="300" height="57" alt="">
         </a>
         <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
         <div class="collapse navbar-collapse" id="collapsibleNavId">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/gleesons/dashboard">Dashboard</a>
+                    <a class="nav-link" href="/dashboard">Dashboard</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="#">GoIntegrator <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a title="Logout" class="nav-link" href="/gleesons/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
+                    <a title="Logout" class="nav-link" href="/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
                 </li>
                 <!-- <div class="nav-item">
                     <a class="nav-link" href="javascript:void(0)" onclick="handleResponse('<?= $searchTerm ?>')">Trigger

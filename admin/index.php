@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 if (!isset($_COOKIE['refresh_token']))
-    header("Location: /gleesons/login");
+    header("Location: /login");
 require "../resources/service/functions.php";
 
 $conn = DatabaseMisc::connect();
@@ -28,17 +28,17 @@ $limit = 100;
 
 <body onload="">
     <nav class="navbar navbar-expand-sm navbar-light text-dark" style="background: #c9dfee">
-        <a class="navbar-brand" href="/gleesons/">
+        <a class="navbar-brand" href="/">
             <img src="../resources/img/logo-white.png" width="300" height="57" alt="">
         </a>
         <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
         <div class="collapse navbar-collapse" id="collapsibleNavId">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/gleesons/dashboard">Dashboard<span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/dashboard">Dashboard<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/gleesons/go/">GoIntegrator</a>
+                    <a class="nav-link" href="/go/">GoIntegrator</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="#">Admin<span class="sr-only">(current)</span></a>

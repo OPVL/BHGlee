@@ -1,6 +1,6 @@
 <?php
 if (!isset($_COOKIE['refresh_token'])) {
-    header('Location: /gleesons/login?origin=dashboard');
+    header('Location: /login?origin=dashboard');
 }
 ?>
 <!doctype html>
@@ -21,7 +21,7 @@ if (!isset($_COOKIE['refresh_token'])) {
 
 <body onload="init()" style="margin-bottom: 40px;">
     <nav class="navbar navbar-expand-sm navbar-light text-dark" style="background: #c9dfee">
-        <a class="navbar-brand" href="/gleesons/">
+        <a class="navbar-brand" href="/">
             <img src="../resources/img/logo-white.png" width="300" height="57" alt="">
         </a>
         <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
@@ -31,17 +31,17 @@ if (!isset($_COOKIE['refresh_token'])) {
                     <a class="nav-link" href="#">Dashboard<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/gleesons/go/">GoIntegrator</a>
+                    <a class="nav-link" href="/go/">GoIntegrator</a>
                 </li>
                 <li class="nav-item">
-                    <a title="Logout" class="nav-link" href="/gleesons/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
+                    <a title="Logout" class="nav-link" href="/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
                 </li>
                 <!-- <div class="nav-item">
                     <a class="nav-link" href="javascript:void(0)" onclick="handleResponse('<?= $searchTerm ?>')">Trigger
                         response</a>
                 </div> -->
             </ul>
-            <form class="form-inline my-2 my-lg-0" action="/gleesons/go" method="GET">
+            <form class="form-inline my-2 my-lg-0" action="/go" method="GET">
                 <input required class="form-control mr-md-10" type="text" placeholder="Search" name="term">
             </form>
         </div>
