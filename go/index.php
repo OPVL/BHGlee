@@ -36,13 +36,13 @@ if (isset($_GET['term'])) {
         <div class="collapse navbar-collapse" id="collapsibleNavId">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/dashboard">Dashboard</a>
+                    <a class="nav-link" href="/gleesons/dashboard">Dashboard</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="#">GoIntegrator <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a title="Logout" class="nav-link" href="/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
+                    <a title="Logout" class="nav-link" href="/gleesons/logout?BhRestToken=<?= $_COOKIE['BhRestToken'] ?>" role="button"><i class="fas fa-sign-out-alt"></i></i></a>
                 </li>
                 <!-- <div class="nav-item">
                     <a class="nav-link" href="javascript:void(0)" onclick="handleResponse('<?= $searchTerm ?>')">Trigger

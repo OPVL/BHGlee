@@ -63,7 +63,7 @@ function createElem(parent, className, elemType = 'div') {
     return div;
 }
 
-function createNotesForm(parent, entityId) {
+function createNotesForm(parent, entityId, entityType) {
 
     for (const child of parent.children) {
         if (child.nodeName == 'FORM') {
@@ -80,14 +80,28 @@ function createNotesForm(parent, entityId) {
      */
     let hBox = createElem(form, 'form-group');
     let hLabel = createElem(hBox, 'sr-only', 'label');
-    hLabel.setAttribute('for', 'userID');
-    hLabel.innerText = 'UserID';
+    hLabel.setAttribute('for', 'entityId');
+    hLabel.innerText = 'entityId';
     let hInput = createElem(hBox, 'form-control', 'input');
     hInput.setAttribute('type', 'number');
-    hInput.setAttribute('name', 'userID');
+    hInput.setAttribute('name', 'entityId');
     hInput.setAttribute('value', entityId);
-    hInput.setAttribute('id', 'userId')
+    hInput.setAttribute('id', 'entityId')
     hInput.hidden = true;
+
+    /**
+     * Entity Type hidden input box
+     */
+    let hTBox = createElem(form, 'form-group');
+    let hTLabel = createElem(hTBox, 'sr-only', 'label');
+    hTLabel.setAttribute('for', 'entityType');
+    hTLabel.innerText = 'entityType';
+    let hTInput = createElem(hTBox, 'form-control', 'input');
+    hTInput.setAttribute('type', 'text');
+    hTInput.setAttribute('name', 'entityType');
+    hTInput.setAttribute('value', entityType);
+    hTInput.setAttribute('id', 'entityType')
+    hTInput.hidden = true;
 
     /**
      * Action Dropdown uses loop of dropdown options
@@ -194,7 +208,7 @@ function createListEntry(parent, entity) {
     let collapse = createElem(wrapper, 'collapse');
     collapse.setAttribute('id', `collapse${entity.entityId}`);
     createElem(collapse, 'my-2', 'hr');
-    createNotesForm(collapse, entity.entityId);
+    createNotesForm(collapse, entity.entityId, entity.entityType);
 }
 
 // function getCookie(cname) {

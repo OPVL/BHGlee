@@ -175,12 +175,6 @@ class AuthCode
 }
 class AccessToken
 {
-    public static $refreshParams = [
-        CURLOPT_FOLLOWLOCATION => 0,
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_MAXREDIRS => 0,
-        CURLOPT_HEADER => 1
-    ];
 
     public static $params = [
         CURLOPT_FOLLOWLOCATION => 0,
@@ -316,27 +310,3 @@ class RestToken
         return $response;
     }
 }
-
-// print_r(RestToken::get(false, ['training.gle','Disco2019!']));
-
-// print_r(RestToken::get(false));
-
-// Array ( 
-//     [access_token] => 23:7a437f92-b134-433c-8ab5-d5ac40940189 
-//     [token_type] => Bearer 
-//     [expires_in] => 600 
-//     [refresh_token] => 23:1a8517d4-a6a0-4a8f-94b2-3ce4a69b56b4 
-//     ) 
-// Array ( 
-//     [BhRestToken] => a7529ba2-9228-42cf-b6e8-3943a9691838 
-//     [restUrl] => https://rest23.bullhornstaffing.com/rest-services/3rn5us/ 
-//     ) 
-    
-//     {
-//         "BhRestToken":"a7529ba2-9228-42cf-b6e8-3943a9691838",
-//         "restUrl":"https:\/\/rest23.bullhornstaffing.com\/rest-services\/3rn5us\/",
-//         "access_token":"23:7a437f92-b134-433c-8ab5-d5ac40940189",
-//         "token_type":"Bearer",
-//         "expires_in":600,
-//         "refresh_token":"23:1a8517d4-a6a0-4a8f-94b2-3ce4a69b56b4"
-//     }

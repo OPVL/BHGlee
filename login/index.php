@@ -43,7 +43,7 @@ if (isset($status)){
                     <h3 class="text-center">Sign in to Bullhorn</h3>
                 </div>
                 <div class="card-body">
-                    <form action='/resources/index.php' method='POST'>
+                    <form action='/gleesons/resources/index.php' method='POST'>
                         <?= isset($status) ? "<div class='text-center alert alert-$status' role='alert'><strong style='font-size: 13px'>$message</strong></div>" : null ?>
                         <div class="form-group">
                             <label class="sr-only" for="origin">origin</label>
