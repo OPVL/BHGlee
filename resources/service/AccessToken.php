@@ -1,8 +1,5 @@
 <?php
 
-use App\Service\Log;
-use App\Service\Bullhorn\AuthCode;
-
 class AccessToken
 {
     public static $refreshParams = [
