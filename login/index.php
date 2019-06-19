@@ -15,10 +15,11 @@ $messages = [
     "Logged out Successfully."
 ];
 
-if (isset($status)){
+if (isset($status)) {
     $message = $messages[$_GET['message'] ?? 0];
 }
 ?>
+
 <head>
     <title>GoIntegrator</title>
     <!-- Required meta tags -->
@@ -51,7 +52,7 @@ if (isset($status)){
                         </div>
                         <div class="form-group">
                             <label class="sr-only" for="term">term</label>
-                            <input type="text" class="form-control" name="term" id="term" placeholder="term" value="?term=<?=$_GET['term']?>" hidden>
+                            <input type="text" class="form-control" name="term" id="term" placeholder="term" value="?term=<?= $_GET['term'] ?>" hidden>
                         </div>
                         <div class="input-group form-group">
                             <div class="input-group-prepend">
