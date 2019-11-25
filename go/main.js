@@ -267,7 +267,7 @@ function handleResponse(term) {
             "name": "Lead",
             "entities": [],
             "niceName": "Leads"
-        },
+        }
     ];
     let count = 0;
 
